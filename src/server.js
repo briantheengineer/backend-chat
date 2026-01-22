@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from "./routes/auth.routes.js";
 import deckRoutes from "./routes/deck.routes.js";
+import flashcardRoutes from "./routes/flashcard.routes.js"
 
 const app = express();
 
@@ -12,6 +13,7 @@ app.get("/health", (req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/decks", deckRoutes); 
+app.use("/flashcards", flashcardRoutes);
 
 const PORT = process.env.PORT || 5000;
 
