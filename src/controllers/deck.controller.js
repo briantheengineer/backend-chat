@@ -38,3 +38,30 @@ export async function listDecks(req, res) {
     return res.status(500).json({ error: "Erro ao listar decks" });
   }
 }
+
+export async function deleteDeck(req, res) {
+  try {
+    const { deckId } = req.params;
+    const userId = req.userId;
+
+    const deck = await prisma.deck.findFirst({
+      where: {
+        id: deckId,
+        userId
+      }
+    });
+
+    if (!deck) {
+      return res.status(404).json({ error: "Deck não encontrado" });
+    }
+
+    await prisma.deck.delete({
+      where: { id: deckId }
+    });
+
+    return res.json({ message: "Deck deletado com sucesso" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Erro ao deletar deck" });
+  }
+}
