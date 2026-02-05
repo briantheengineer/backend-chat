@@ -9,5 +9,7 @@ router.post("/", authMiddleware, createDeck);
 router.get("/", authMiddleware, listDecks);
 router.delete("/:deckId", authMiddleware, deleteDeck);
 router.use("/:deckId/flashcards", flashcardRoutes);
+router.get("/decks/:deckId", authMiddleware, getDeck);
+
 
 export default router;
