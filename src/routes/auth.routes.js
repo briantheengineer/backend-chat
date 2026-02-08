@@ -38,13 +38,18 @@ router.post("/register", async (req, res) => {
       },
     });
     
-   transporter.sendMail({
-    from: `"StudyNook" <${process.env.EMAIL_USER}>`,
-    to: user.email,
-    subject: "Bem-vindo 🚀",
-    text: "Conta criada com sucesso!",
-  }).catch(err => console.error(err));
-
+   try {
+    await transporter.sendMail({
+      from: `"StudyNook" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Bem-vindo ao StudyNook 🚀",
+      text: "Sua conta foi criada com sucesso!",
+    });
+      console.log("EMAIL ENVIADO!");
+      
+      } catch (err) {
+        console.error("Erro ao enviar email:", err);
+      }
 
     const token = jwt.sign(
       { userId: user.id },
