@@ -4,13 +4,8 @@ import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from  "jsonwebtoken"
 import crypto from "crypto";
-import { Resend } from "resend";
-
-
-
 
 const router = Router();
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 router.get("/", (req, res) => {
   res.json({ ok: true });
@@ -39,33 +34,22 @@ router.post("/register", async (req, res) => {
         email,
         name,
         password: hashedPassword,
-        emailVerified: false
       },
     });
 
-    const token = crypto.randomBytes(32).toString("hex");
-
-    await prisma.verificationToken.create({
-      data: {
-        token,
-        userId: user.id,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24)
-      }
-    });
-
-    await resend.emails.send({
-      from: "StudyNook <onboarding@resend.dev>",
-      to: user.email,
-      subject: "Verify your email",
-      html: `
-        <h2>Bem vindo ao StudyNook!</h2>
-        <p>Clique abaixo para verificar seu email:</p>
-        <a href="${process.env.APP_URL}/verify-email?token=${token}">
-      `
-    });
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
 
     return res.status(201).json({
-      message: "Usuário criado! Verifique seu email 📩"
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
     });
 
   } catch (error) {
@@ -73,6 +57,7 @@ router.post("/register", async (req, res) => {
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
+
 
 
 router.post("/login", async (req,res) => {
