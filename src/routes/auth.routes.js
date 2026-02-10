@@ -6,13 +6,6 @@ import { transporter } from "../lib/mailer.js";
 
 const router = Router();
 
-import { Router } from "express";
-import prisma from "../lib/prisma.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import validator from "validator";
-import { transporter } from "../lib/mailer.js";
-
 router.post("/register", async (req, res) => {
   try {
     const { email, password, name } = req.body;
