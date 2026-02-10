@@ -3,6 +3,7 @@ import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { transporter } from "../lib/mailer.js";
+import validator from "validator";
 
 const router = Router();
 
