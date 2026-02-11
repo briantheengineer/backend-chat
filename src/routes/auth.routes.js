@@ -2,8 +2,7 @@ import { Router } from "express";
 import prisma from "../lib/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import validator from "validator";
-import { transporter } from "../lib/mailer.js";
+
 
 const router = Router();
 
@@ -16,10 +15,6 @@ router.post("/register", async (req, res) => {
     }
 
     const emailNormalized = email.toLowerCase().trim();
-
-    if (!validator.isEmail(emailNormalized)) {
-      return res.status(400).json({ error: "Email inválido" });
-    }
 
     const userAlreadyExists = await prisma.user.findUnique({
       where: { email: emailNormalized },
@@ -38,20 +33,6 @@ router.post("/register", async (req, res) => {
         password: hashedPassword,
       },
     });
-
-    try {
-      const info = await transporter.sendMail({
-        from: `"StudyNook" <${process.env.EMAIL_USER}>`,
-        to: user.email,
-        subject: "Bem-vindo ao StudyNook 🚀",
-        text: "Sua conta foi criada com sucesso!",
-      });
-
-      console.log("EMAIL ENVIADO:", info.response);
-    } catch (err) {
-      console.error("ERRO AO ENVIAR EMAIL:");
-      console.error(err);
-    }
 
     const token = jwt.sign(
       { userId: user.id },
