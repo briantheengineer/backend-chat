@@ -3,6 +3,8 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes.js";
 import deckRoutes from "./routes/deck.routes.js";
 import flashcardRoutes from "./routes/flashcard.routes.js";
+import uploadRoutes from "./routes/upload.route.js";
+
 
 const app = express();
 
@@ -21,6 +23,7 @@ app.get("/health", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/decks", deckRoutes); 
 app.use("/flashcards", flashcardRoutes);
+app.use("/api/upload", uploadRoutes);
 
 const PORT = process.env.PORT || 5000;
 

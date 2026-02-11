@@ -23,6 +23,7 @@ model User {
 
   decks      Deck[]
   flashcards Flashcard[]
+  imageUrl String?
 
   @@index([email])
 }
