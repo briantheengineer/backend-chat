@@ -14,8 +14,13 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: "https://frontend-studynook.vercel.app",
+  origin: [
+    "http://localhost:5173",
+    "https://frontend-studynook.vercel.app"
+  ],
+  credentials: true
 }));
+
 app.get("/health", (req, res) => {
     res.json({ ok: true });
 })
