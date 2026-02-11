@@ -2,7 +2,7 @@ import prisma from "../lib/prisma.js";
 
 export async function createFlashcard(req, res) {
   try {
-    const { front, back } = req.body;
+    const { front, back, imageUrl } = req.body;
     const { deckId } = req.params;
     const userId = req.userId;
 
@@ -11,10 +11,7 @@ export async function createFlashcard(req, res) {
     }
 
     const deck = await prisma.deck.findFirst({
-      where: {
-        id: deckId,
-        userId
-      }
+      where: { id: deckId, userId }
     });
 
     if (!deck) {
@@ -22,12 +19,7 @@ export async function createFlashcard(req, res) {
     }
 
     const flashcard = await prisma.flashcard.create({
-      data: {
-        front,
-        back,
-        deckId,
-        userId
-      }
+      data: { front, back, imageUrl, deckId, userId }
     });
 
     return res.status(201).json(flashcard);
@@ -42,25 +34,12 @@ export async function listFlashcards(req, res) {
     const { deckId } = req.params;
     const userId = req.userId;
 
-    const deck = await prisma.deck.findFirst({
-      where: {
-        id: deckId,
-        userId
-      }
-    });
-
-    if (!deck) {
-      return res.status(404).json({ error: "Deck não encontrado" });
-    }
+    const deck = await prisma.deck.findFirst({ where: { id: deckId, userId } });
+    if (!deck) return res.status(404).json({ error: "Deck não encontrado" });
 
     const flashcards = await prisma.flashcard.findMany({
-      where: {
-        deckId,
-        userId
-      },
-      orderBy: {
-        createdAt: "asc"
-      }
+      where: { deckId, userId },
+      orderBy: { createdAt: "asc" }
     });
 
     return res.json(flashcards);
@@ -75,34 +54,13 @@ export async function deleteFlashcard(req, res) {
     const { deckId, flashcardId } = req.params;
     const userId = req.userId;
 
-    const deck = await prisma.deck.findFirst({
-      where: {
-        id: deckId,
-        userId
-      }
-    });
+    const deck = await prisma.deck.findFirst({ where: { id: deckId, userId } });
+    if (!deck) return res.status(404).json({ error: "Deck não encontrado" });
 
-    if (!deck) {
-      return res.status(404).json({ error: "Deck não encontrado" });
-    }
+    const flashcard = await prisma.flashcard.findFirst({ where: { id: flashcardId, deckId, userId } });
+    if (!flashcard) return res.status(404).json({ error: "Flashcard não encontrado" });
 
-    const flashcard = await prisma.flashcard.findFirst({
-      where: {
-        id: flashcardId,
-        deckId,
-        userId
-      }
-    });
-
-    if (!flashcard) {
-      return res.status(404).json({ error: "Flashcard não encontrado" });
-    }
-
-    await prisma.flashcard.delete({
-      where: {
-        id: flashcardId
-      }
-    });
+    await prisma.flashcard.delete({ where: { id: flashcardId } });
 
     return res.status(204).send();
   } catch (error) {
@@ -114,34 +72,22 @@ export async function deleteFlashcard(req, res) {
 export async function updateFlashcard(req, res) {
   try {
     const { deckId, flashcardId } = req.params;
-    const { front, back } = req.body;
+    const { front, back, imageUrl } = req.body;
     const userId = req.userId;
 
-    if (!front && !back) {
-      return res.status(400).json({
-        error: "Informe pelo menos front ou back para atualizar"
-      });
+    if (!front && !back && !imageUrl) {
+      return res.status(400).json({ error: "Informe pelo menos front, back ou imageUrl" });
     }
 
-    const flashcard = await prisma.flashcard.findFirst({
-      where: {
-        id: flashcardId,
-        deckId,
-        userId
-      }
-    });
-
-    if (!flashcard) {
-      return res.status(404).json({ error: "Flashcard não encontrado" });
-    }
+    const flashcard = await prisma.flashcard.findFirst({ where: { id: flashcardId, deckId, userId } });
+    if (!flashcard) return res.status(404).json({ error: "Flashcard não encontrado" });
 
     const updatedFlashcard = await prisma.flashcard.update({
-      where: {
-        id: flashcardId
-      },
+      where: { id: flashcardId },
       data: {
         front: front ?? flashcard.front,
-        back: back ?? flashcard.back
+        back: back ?? flashcard.back,
+        ...(imageUrl ? { imageUrl } : {})
       }
     });
 
